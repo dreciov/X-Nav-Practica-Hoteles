@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<!--
+    Simple view of accomodations in Madrid
+-->
+<html>
+   <head>
+     <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+     <title>Accomodations in Madrid</title>
+      <link rel="stylesheet" href="jquery-ui.min.css">
+     <link href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" rel="stylesheet">
+     <link href="alojamientos.css" rel="stylesheet">
+   
+     <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.3.min.js"></script>
+     <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+     <script type="text/javascript" src="alojamientos.js"></script>
+      <script src="jquery-ui.min.js" type="text/javascript"></script>
+
+   </head>
+   <body>
+       <div id="titulo">
+          <div>
+            <h1>
+              <a id="soc">YOUHOTEL: </a>
+              <a id="red">gestiona tu estancia</a>
+            </h1>
+         </div>
+         </div>
+      <div id ="general">
+          <ul>
+            <li><a href="#tab1">General</a></li>
+            <li><a href="#tab2">Colections</a></li>
+            <li><a href="#tab3">Users</a></li>
+           </ul>
+          <div id="tab1">
+            <div id="list" style="overflow: scroll; width: 300px; height: 700px; float:left">
+                <p id="desc"></p>
+                <p id="get">Click here to get accodations!</p>
+            </div>
+             <div id="map"></div>
+          </div>  
+          <div id="tab2">
+            <div style="margin-bottom:30px">
+              <a style ="margin-left: 100px;">Crea una nueva coleccion</a>
+              <input type="text" id="display" value="">
+              <input type="button" id="botoncoleccion" value ="OK">
+            </div>
+            <div id="listcolections" style="overflow: scroll; width: 300px; height: 700px; float:left" ></div>
+            <div id="colections" style="float:left">Colections
+            </div>
+          </div>
+          <div id="tab3">
+              <div style="margin-bottom:30px">
+               <a style ="margin-left: 100px;">Añadir nuevo usuario</a>
+                <input type="text" id="display2" value="">
+                <input type="button" id="botonusers" value ="OK">
+                </div>
+              <div id="users"style="overflow: scroll; width: 300px; height: 700px; float:left">Google+ users
+              </div>
+            <div id="info" style="width: 50%; float:left;">
+            </div>
+          </div>
+      </div>
+   </body>
+</html>
