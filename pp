@@ -1,1 +1,0 @@
-[{"nombre":"col1","lista":["Dear Hotel","Castilla II"]},{"nombre":"col2","lista":["Castilla II","NH Madrid Alonso Martínez"]}]
