@@ -5,6 +5,14 @@
 // Simple version. Doesn't work well if some of the fields are not defined.
 // (for example, if there are no pictures)
 //
+var i = 0;
+var z = 0;
+var colecciones = [];
+var coleccionesusuarios = [];
+var texto;
+var user = "dreciov";
+var mostrarcol=false;
+var mostrarusr = false;
 function show_accomodation(){
   var accomodation = accomodations[$(this).attr('no')];
   var lat = accomodation.geoData.latitude;
@@ -26,7 +34,17 @@ function show_accomodation(){
   map.setView([lat, lon], 15);
   $('#info').html('<h2>' + name + '</h2>'
    + '<p>Type: ' + cat + ', subtype: ' + subcat + '</p>'
-   + desc + '<img src="' + img + '"">');
+   + desc);
+
+  var imagenes = new Array();
+  if(accomodation.multimedia != null){
+      for(j in accomodation.multimedia.media){
+        imagenes[j] = accomodation.multimedia.media[j].url;
+      }
+    }
+    $('#image1').html('<img src="' + imagenes[0] + '"">');
+    $('#image2').html('<img src="' + imagenes[1] + '"">');
+    $('#image3').html('<img src="' + imagenes[2] + '"">');
 };
 
 function get_accomodations(){
@@ -43,10 +61,11 @@ function get_accomodations(){
     list = list + '</ul>';
     $('#list').html(list);
     $("#listcolections").html(list);
+    $("#listusers").html(list);
     $('#list li').click(show_accomodation);
-    $("#listcolections li").draggable({
+    $("#listcolections li, #listusers li").draggable({
     	revert: 'invalid	',
-        helper: 'clone',   
+        helper: 'clone',
         cursor: 'move'
     });
   });
@@ -64,37 +83,206 @@ $(document).ready(function() {
  	 	$("#button").button();
  	 });
 
+    $("#cargarguardarcol *").hide();
+     $("#cargarguardarusuarios *").hide();
+
+   $("#mostrarguardarcol").click(function(){
+    if(mostrarcol===false){
+     $("#cargarguardarcol *").show();
+      mostrarcol = true;
+    }else if(mostrarcol===true){
+      $("#cargarguardarcol *").hide();
+      mostrarcol = false;
+    }
+
+   })
+
+   $("#mostrarguardarusuarios").click(function(){
+    if(mostrarusr===false){
+     $("#cargarguardarusuarios *").show();
+      mostrarusr = true;
+    }else if(mostrarusr===true){
+      $("#cargarguardarusuarios *").hide();
+      mostrarusr = false;
+    }
+
+   })
+
+//colecciones de usuarios
+    $("#users").droppable({
+      accept: "#listusers li",
+    drop: function(event,ui){
+      var valor = $(ui.draggable).text();
+      var y = $("<div id=listausuario"+z+" style = width:200px></div>");
+      y.droppable({ 
+        drop: function(ev, ui){
+        $(this).append($(ui.draggable).clone());
+      }
+      })
+      //$(this).append($(ui.draggable).clone());
+      $(this).append("<h3 id =nombrelistausuario"+z+" style=width:200px>"+valor+"</h3>");
+      $(this).append(y);
+      $("#users").accordion({collapsible: true, active:true, heightStyle: "content"})
+  .accordion("refresh");
+    z = z + 1;
+    }
+  })
+
   $("#get").click(get_accomodations);
-  $("#botoncoleccion,#botonusers").click(function(){
+ 
+ //CREAR COLECCIONES DE HOTELES
+  $("#botoncoleccion").click(function(){
 	var val = $("#display").val();
 	if(val!=""){
-	var x = $("<div style=height: 800px;></div>");
-	$("#colections").append("<h3>"+val+"</h3>");
+	var x = $("<div id=lista"+i+" style=height: 800px;></div>");
+	$("#colections").append("<h3 id =coleccion"+i+">"+val+"</h3>");
 	$("#colections").append(x);
 	x.droppable({
 		drop: function(ev, ui){
- 			$(this).append($(ui.draggable).clone());  
+ 			$(this).append($(ui.draggable).clone());
  		}
 	})
 	$("#colections").accordion({collapsible: true, active:true, heightStyle: "content"})
 	.accordion("refresh");
+  i = i+1;
 	}
 })
   $("#botonusers").click(function(){
 	var val = $("#display2").val();
 	if(val!=""){
-	var x = $("<div style=height: 800px;></div>");
-	$("#users").append("<h3>"+val+"</h3>");
+    $("#usuarios").append("<li>"+val+"</li>");
+    $("#usuarios li").draggable({
+        revert: 'invalid  ',
+        helper: 'clone',
+        cursor: 'move'
+    });
+	/*var x = $("<div style=height: 800px;></div>");
+	$("#users").append("<div>"+val+"</div>");
 	$("#users").append(x);
 	x.droppable({
 		drop: function(ev, ui){
- 			$(this).append($(ui.draggable).clone());  
+ 			$(this).append($(ui.draggable).clone());
  		}
 	})
 	$("#users").accordion({collapsible: true, active:true, heightStyle: "content"})
-	.accordion("refresh");
+	.accordion("refresh");*/
 	}
 })
 
+$("#guardar").click(function(){
+  var token = $("#token").val();
+  var repositorio = $("#repo").val();
+  var fichero = $("#fich").val();
+  var github = new Github({token:token,auth: "oauth"});
+  for(var j=0; j<=i-1;j++){
+    var hoteles = [];
+    var col = $("#coleccion"+j).text();
+    colecciones[col] = [];
+    var lista = $("#lista"+j+" li");
+    for(var k=0; k<= lista.length-1;k++){
+      hoteles[k]=($(lista[k]).text());
+  }
+  var objeto ={
+    nombre: col,
+    lista: hoteles,
+  }
+  colecciones.push(objeto);
+  };
+  var texto = JSON.stringify(colecciones);
+  var repositorio_git = github.getRepo(user, repositorio);
+  repositorio_git.write("gh-pages",fichero,texto,"fichero",function(err){});
+  repositorio_git.write("master",fichero,texto,"fichero",function(err){});
+})
 
+$("#cargar").click(function(){
+var nombrefichero = $("#ficherocolecciones").val();
+var nombrerepo = $("#ficherocoleccionesrepo").val();
+var url = "https://api.github.com/repos/dreciov/" + nombrerepo+ "/contents/" + nombrefichero;
+//var url = $("#ficherocolecciones").val();
+  $.getJSON(url, {
+    format: "json"
+  })
+  .done(function(data){
+
+    var json_parse = JSON.parse(decodeURIComponent(escape(atob(data.content))));
+
+    for(var j=0; j<= json_parse.length-1;j++){
+      $("#colections").append("<h3 id=coleccion"+i+">"+json_parse[j].nombre+"</h3>");
+      var x = $("<div id=lista"+i+" style=height: 800px;></div>");
+      $("#colections").append(x);
+      x.droppable({
+        drop: function(ev,ui){
+          $(this).append($(ui.draggable).clone());
+        }
+      })
+
+      for(var k=0; k<=json_parse[j].lista.length-1;k++){
+        $("#lista"+i).append("<li>"+json_parse[j].lista[k]+"</li>");
+      }
+      $("#colections").accordion({collapsible: true, active:true, heightStyle: "content"})
+      .accordion("refresh");
+      i = i+1;
+    }
+
+  })
+});
+
+///usuarios
+$("#guardar2").click(function(){
+  var token = $("#token2").val();
+  var repositorio = $("#repo2").val();
+  var fichero = $("#fich2").val();
+  var github = new Github({token:token,auth: "oauth"});
+  for(var j=0; j<=z-1;j++){
+    var hoteles = [];
+    var col = $("#nombrelistausuario"+j).text();
+    coleccionesusuarios[col] = [];
+    var lista = $("#listausuario"+j+" li");
+    for(var k=0; k<= lista.length-1;k++){
+      hoteles[k]=($(lista[k]).text());
+  }
+  var objeto ={
+    nombre: col,
+    lista: hoteles,
+  }
+  coleccionesusuarios.push(objeto);
+  };
+  var texto = JSON.stringify(coleccionesusuarios);
+  var repositorio_git = github.getRepo(user, repositorio);
+  repositorio_git.write("gh-pages",fichero,texto,"fichero",function(err){});
+  repositorio_git.write("master",fichero,texto,"fichero",function(err){});
+
+})
+
+$("#cargar2").click(function(){
+//var url = $("#ficherousuarios").val();
+var nombrefichero2 = $("#ficherousuarios").val();
+var nombrerepo2 = $("#ficherousuariosrepo").val();
+var url = "https://api.github.com/repos/dreciov/" + nombrerepo2 + "/contents/" + nombrefichero2;
+  $.getJSON(url, {
+    format: "json"
+  })
+  .done(function(data){
+     var json_parse = JSON.parse(decodeURIComponent(escape(atob(data.content))));
+    for(var j=0; j<= json_parse.length-1;j++){
+      $("#users").append("<h3 id=nombrelistausuario"+z+">"+json_parse[j].nombre+"</h3>");
+      var x = $("<div id=listausuario"+z+" style=height: 800px;></div>");
+      $("#users").append(x);
+      x.droppable({
+        drop: function(ev,ui){
+          $(this).append($(ui.draggable).clone());
+        }
+      })
+      for(var k=0; k<=json_parse[j].lista.length-1;k++){
+        $("#listausuario"+z).append("<li>"+json_parse[j].lista[k]+"</li>");
+      }
+      $("#users").accordion({collapsible: true, active:true, heightStyle: "content"})
+      .accordion("refresh");
+      z = z+1;
+    }
+  })
+});
+ $('#Carousel').carousel({
+        interval: 5000
+    })
 });
