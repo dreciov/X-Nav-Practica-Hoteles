@@ -8,4 +8,8 @@ http://dreciov.github.io/X-Nav-Practica-Hoteles
 
 #
 David Recio Vivas. Ingenieria telematica
+Cuenta de laboratorio: drecio
+Usuario Github: dreciov
+
+Url del video
 
